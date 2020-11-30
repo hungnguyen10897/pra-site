@@ -1,7 +1,7 @@
 from flask import Flask, render_template, flash, url_for, redirect
 
-from forms import InputForm
-from models import Project
+from pra_site.forms import InputForm
+from pra_site.models import Project
 from pra_site import app
 
 @app.route("/", methods=['GET', 'POST'])

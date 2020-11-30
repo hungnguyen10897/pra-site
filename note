@@ -1,0 +1,15 @@
+# python
+$ from pra_site import db
+$ db.create_all()
+
+$ from pra_site.models import Project
+$ p1 = Project(name="P1", sonarcloud_link="link1", jenkins_link="link2")
+$ db.session.add(p1)
+$ db.session.commit()
+
+$ ps = Project.query.all()
+$ p = Project.query.first()
+$ p2 = Project.query.filter_by(name="my project").first()
+$ p2.sonarcloud_link
+
+$ db.drop_all()
