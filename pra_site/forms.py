@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, URL, Length
+from wtforms.validators import DataRequired, URL
 
 class InputForm(FlaskForm):
-    name = StringField('Project Name', validators=[DataRequired(), Length(min=5)])
-    sonarcloud_link = StringField('Sonarcloud Link', validators=[DataRequired(), URL()])
-    jenkins_link = StringField('Sonarcloud Link', validators=[DataRequired(), URL()])
+    sonar_org_key = StringField('Sonarcloud Organization Key', validators=[DataRequired()])
+    jenkins_server = StringField('Jenkins Server Link', validators=[DataRequired(), URL()])
     submit = SubmitField('Submit')

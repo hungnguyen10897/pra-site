@@ -4,44 +4,31 @@
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Register Project</legend>
+                <legend class="border-bottom mb-4">Register Link</legend>
                 <div class="form-group">
-                    {{ form.name.label(class="form-control-label") }}
-                    {% if form.name.errors %}
-                        {{ form.name(class="form-control form-control-lg is-invalid") }}
+                    {{ form.sonar_org_key.label(class="form-control-label") }}
+                    {% if form.sonar_org_key.errors %}
+                        {{ form.sonar_org_key(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.name.errors %}
+                            {% for error in form.sonar_org_key.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.name(class="form-control form-control-lg") }}
+                        {{ form.sonar_org_key(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
                 <div class="form-group">
-                    {{ form.sonarcloud_link.label(class="form-control-label") }}
-                    {% if form.sonarcloud_link.errors %}
-                        {{ form.sonarcloud_link(class="form-control form-control-lg is-invalid") }}
+                    {{ form.jenkins_server.label(class="form-control-label") }}
+                    {% if form.jenkins_server.errors %}
+                        {{ form.jenkins_server(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.sonarcloud_link.errors %}
+                            {% for error in form.jenkins_server.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.sonarcloud_link(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.jenkins_link.label(class="form-control-label") }}
-                    {% if form.jenkins_link.errors %}
-                        {{ form.jenkins_link(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.jenkins_link.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.jenkins_link(class="form-control form-control-lg") }}
+                        {{ form.jenkins_server(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
                 <div class="form-group">

@@ -1,11 +1,10 @@
 from pra_site import db
 
-class Project(db.Model):
+class Link(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True, nullable=False)
-    sonarcloud_link = db.Column(db.String, unique=True, nullable=False)
-    jenkins_link = db.Column(db.String, unique=True, nullable=False)
+    sonar_org_key = db.Column(db.String, unique=True, nullable=False)
+    jenkins_server = db.Column(db.String, unique=True, nullable=False)
 
-    def __repr__(self):
-        return f"Project('{self.name}')"
+    # def __repr__(self):
+    #     return f"Project('{self.name}')"
     
