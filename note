@@ -1,15 +1,17 @@
 # python
-$ from pra_site import db
-$ db.create_all()
+from pra_site import db
+from pra_site.models import Source
 
-$ from pra_site.models import Project
-$ p1 = Project(name="P1", sonarcloud_link="link1", jenkins_link="link2")
-$ db.session.add(p1)
-$ db.session.commit()
 
-$ ps = Project.query.all()
-$ p = Project.query.first()
-$ p2 = Project.query.filter_by(name="my project").first()
-$ p2.sonarcloud_link
+db.create_all()
 
-$ db.drop_all()
+s1 = Source(sonar_org_key="j14", jenkins_server="https://www.facebook.com/")
+db.session.add(s1)
+db.session.commit()
+
+ss = Source.query.all()
+s1 = Source.query.first()
+s2 = Source.query.filter_by(sonar_org_key="j14").first()
+s2.sonarcloud_link
+
+db.drop_all()
