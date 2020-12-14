@@ -28,6 +28,6 @@ class InputForm(FlaskForm):
         try:
             server = jenkins.Jenkins(jenkins_server.data)
             server.get_version()
-        except KeyError:
+        except (KeyError, requests.exceptions.ConnectionError):
             raise ValidationError(f"Jenkins Server '{jenkins_server.data}' does not exist.")
 
