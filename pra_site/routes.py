@@ -1,10 +1,12 @@
-from flask import Flask, render_template, flash, url_for, redirect
-from sqlalchemy import func
+from flask import Flask, render_template, flash, url_for, redirect, jsonify
+from sqlalchemy import func, MetaData, Table, select
+import os
 
-from pra_site.forms import InputForm
+from pra_site.forms import InputForm, DownloadForm
 from pra_site.models import Source
-from pra_site import app, db
+from pra_site import app, db, engine
 from pra_site.utils import format_jenkins_server
+
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/register", methods=['GET', 'POST'])
@@ -47,7 +49,7 @@ def register():
             source = Source(sonar_org_key=sonar_org_key, jenkins_server=jenkins_server, batch_number = batch_num)
             db.session.add(source)
             db.session.commit()
-            flash(f'Your link is registered successfully.', 'success')
+            flash('Your link is registered successfully.', 'success')
 
         return redirect(url_for('register'))
     return render_template('register.html', title='Register', form=form)
@@ -55,3 +57,28 @@ def register():
 @app.route("/about")
 def about():
     return render_template("about.html", title='About')
+
+@app.route("/download", methods = ["GET", "POST"])
+def download():
+    form = DownloadForm()
+
+    return render_template("download.html", title='Download', form = form)
+
+@app.route("/project/<organization>")
+def project(organization):
+    connection = engine.connect()
+    metadata = MetaData()
+    sonar_analyses = Table("sonar_analyses", metadata, autoload=True, autoload_with=engine)
+
+    query = select([sonar_analyses.columns.project.distinct()]).where(sonar_analyses.columns.organization == organization)
+
+    res = connection.execute(query)
+    res_set = res.fetchall()
+
+    project_array = []
+    for line in res_set:
+        project_obj = {}
+        project_obj["name"] = line[0]
+        project_array.append(project_obj)
+    
+    return jsonify({"projects" : project_array})

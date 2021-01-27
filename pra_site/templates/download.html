@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Download</h1>
+    <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <div class="form-group">
+                    {{ form.organization.label(class="form-control-label") }}
+                    {{ form.organization(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.project.label(class="form-control-label") }}
+                    {{ form.project(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+            </fieldset>
+        </form>
+        <script>
+            let organization_select = document.getElementById('organization');
+            let project_select = document.getElementById('project')
+
+            organization_select.onchange = function(){
+                organization = organization_select.value;
+                
+                fetch('/project/' + organization).then(function(response){
+
+                    response.json().then(function(data){
+                        let optionHTML = '';
+                        for (let project of data.projects){
+                            optionHTML += '<option value="' + project.name + '">' + project.name + '</option>';
+                        }
+
+                        project_select.innerHTML = optionHTML
+                    });
+                });
+            }
+        </script>
+    </div>
+
+
+{% endblock content %}

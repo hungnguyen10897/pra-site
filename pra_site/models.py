@@ -13,4 +13,3 @@ class Source(db.Model):
 
     def __repr__(self):
         return f"Source('{self.sonar_org_key}' - '{self.jenkins_server}')"
-    

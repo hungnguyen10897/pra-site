@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, URL, ValidationError
 import jenkins, requests
 
@@ -31,3 +31,8 @@ class InputForm(FlaskForm):
         except (KeyError, requests.exceptions.ConnectionError):
             raise ValidationError(f"Jenkins Server '{jenkins_server.data}' does not exist.")
 
+class DownloadForm(FlaskForm):
+    organization = SelectField("Organization", choices = ['apache', 'my org 1', 'your org 2'])
+    project = SelectField("Project", choices = ['spark', 'kafka', 'airflow'])
+    submit = SubmitField('Download')
+    
