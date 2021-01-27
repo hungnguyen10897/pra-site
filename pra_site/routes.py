@@ -58,14 +58,7 @@ def register():
 def about():
     return render_template("about.html", title='About')
 
-@app.route("/download", methods = ["GET", "POST"])
-def download():
-    form = DownloadForm()
-
-    return render_template("download.html", title='Download', form = form)
-
-@app.route("/project/<organization>")
-def project(organization):
+def get_projects(organization):
     connection = engine.connect()
     metadata = MetaData()
     sonar_analyses = Table("sonar_analyses", metadata, autoload=True, autoload_with=engine)
@@ -75,10 +68,25 @@ def project(organization):
     res = connection.execute(query)
     res_set = res.fetchall()
 
+    return list(map(lambda e: e[0], res_set))
+
+@app.route("/download", methods = ["GET", "POST"])
+def download():
+    form = DownloadForm()
+    form.project.choices = get_projects(form.organization.choices[0])
+    if form.validate_on_submit():
+        organization = form.organization.data
+        
+    return render_template("download.html", title='Download', form = form)
+
+@app.route("/project/<organization>")
+def project(organization):
+
+    projects = get_projects(organization)
     project_array = []
-    for line in res_set:
+    for name in projects:
         project_obj = {}
-        project_obj["name"] = line[0]
+        project_obj["name"] = name
         project_array.append(project_obj)
     
     return jsonify({"projects" : project_array})

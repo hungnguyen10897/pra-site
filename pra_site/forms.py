@@ -2,6 +2,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, URL, ValidationError
 import jenkins, requests
+from sqlalchemy import func, MetaData, Table, select
+
+from pra_site import engine
 
 class InputForm(FlaskForm):
     sonar_org_key = StringField('Sonarcloud Organization Key', validators=[DataRequired()])
@@ -32,7 +35,19 @@ class InputForm(FlaskForm):
             raise ValidationError(f"Jenkins Server '{jenkins_server.data}' does not exist.")
 
 class DownloadForm(FlaskForm):
-    organization = SelectField("Organization", choices = ['apache', 'my org 1', 'your org 2'])
-    project = SelectField("Project", choices = ['spark', 'kafka', 'airflow'])
+
+    connection = engine.connect()
+    metadata = MetaData()
+    sonar_analyses = Table("sonar_analyses", metadata, autoload=True, autoload_with=engine)
+
+    query = select([sonar_analyses.columns.organization.distinct()])
+
+    res = connection.execute(query)
+    res_set = res.fetchall()
+
+    organizations = map(lambda e : e[0], res_set)
+
+    organization = SelectField("Sonarqube Organization", choices = organizations)
+    project = SelectField("Project")
     submit = SubmitField('Download')
     
