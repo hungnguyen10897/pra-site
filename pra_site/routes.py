@@ -1,11 +1,12 @@
-from flask import Flask, render_template, flash, url_for, redirect, jsonify
+from flask import Flask, render_template, flash, url_for, redirect, jsonify, send_file, abort
 from sqlalchemy import func, MetaData, Table, select
-import os
+import os, zipfile, glob
+from pathlib import Path
 
 from pra_site.forms import InputForm, DownloadForm
 from pra_site.models import Source
 from pra_site import app, db, engine
-from pra_site.utils import format_jenkins_server
+from pra_site.utils import format_jenkins_server, get_proper_file_name
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -73,11 +74,52 @@ def get_projects(organization):
 @app.route("/download", methods = ["GET", "POST"])
 def download():
     form = DownloadForm()
-    form.project.choices = get_projects(form.organization.choices[0])
+    
+    # Getting organizations from Database
+    connection = engine.connect()
+    metadata = MetaData()
+    sonar_analyses = Table("sonar_analyses", metadata, autoload=True, autoload_with=engine)
+
+    query = select([sonar_analyses.columns.organization.distinct()])
+    res = connection.execute(query)
+    res_set = res.fetchall()
+
+    organizations = list(map(lambda e : e[0], res_set))
+
+    form.organization.choices = list(zip(organizations, organizations))
+    form.project.choices = get_projects(form.organization.choices[0][0])
+
     if form.validate_on_submit():
-        organization = form.organization.data
-        
+        return redirect(url_for('download_data', organization = form.organization.data, project_name = form.project.data))
+
     return render_template("download.html", title='Download', form = form)
+
+@app.route("/download_data/<organization>/<project_name>")
+def download_data(organization, project_name):
+
+    if "PRA_HOME" not in os.environ:
+        abort(404) 
+
+    project_file_name = get_proper_file_name(project_name)
+    
+    # Remove old files in this dir
+    for old_file in glob.glob("/tmp/pra_site/*"):
+        os.remove(old_file)
+
+    file_path = Path('/tmp/pra_site').joinpath(f"{project_file_name}.zip")
+    zip_file = zipfile.ZipFile(file_path,'w', compression = zipfile.ZIP_DEFLATED)
+
+    # Writing to zip file
+    data_path = Path(os.environ['PRA_HOME']).joinpath("data").joinpath("sonarcloud").joinpath(organization)
+
+    for type_ in ["analyses", "issues", "measures"]:
+        if data_path.joinpath(type_).joinpath(f"{project_file_name}.csv").exists():
+            os.chdir(data_path.joinpath(type_))
+            zip_file.write(f"{project_file_name}.csv", f"{project_file_name}_{type_}.csv")
+
+    zip_file.close()
+
+    return send_file(file_path, mimetype='zip')
 
 @app.route("/project/<organization>")
 def project(organization):

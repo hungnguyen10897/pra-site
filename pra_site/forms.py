@@ -36,18 +36,7 @@ class InputForm(FlaskForm):
 
 class DownloadForm(FlaskForm):
 
-    connection = engine.connect()
-    metadata = MetaData()
-    sonar_analyses = Table("sonar_analyses", metadata, autoload=True, autoload_with=engine)
-
-    query = select([sonar_analyses.columns.organization.distinct()])
-
-    res = connection.execute(query)
-    res_set = res.fetchall()
-
-    organizations = map(lambda e : e[0], res_set)
-
-    organization = SelectField("Sonarqube Organization", choices = organizations)
+    organization = SelectField("Sonarqube Organization")
     project = SelectField("Project")
     submit = SubmitField('Download')
     
