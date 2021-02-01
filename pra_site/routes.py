@@ -110,7 +110,7 @@ def download_data(organization, project_name):
     os.chdir('/tmp/pra_site')
 
     for type_ in ["analyses", "issues", "measures"]:
-        print("Download relevant csv files from 130.230.52.209")
+        # Download relevant csv files from 130.230.52.209
         subprocess.run([
             "scp", \
             f"130.230.52.209:/mnt/sonar_miner/sonar_data/{type_}/{project_file_name}.csv", \
