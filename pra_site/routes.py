@@ -1,6 +1,6 @@
 from flask import Flask, render_template, flash, url_for, redirect, jsonify, send_file, abort
 from sqlalchemy import func, MetaData, Table, select
-import os, zipfile, glob
+import os, zipfile, glob, subprocess
 from pathlib import Path
 
 from pra_site.forms import InputForm, DownloadForm
@@ -97,25 +97,27 @@ def download():
 @app.route("/download_data/<organization>/<project_name>")
 def download_data(organization, project_name):
 
-    if "PRA_HOME" not in os.environ:
-        abort(404) 
-
     project_file_name = get_proper_file_name(project_name)
     
-    # Remove old files in this dir
+    # Remove old files in /tmp/pra_site/ dir
     for old_file in glob.glob("/tmp/pra_site/*"):
         os.remove(old_file)
 
+    Path('/tmp/pra_site').mkdir(exist_ok=True, parents=True)
     file_path = Path('/tmp/pra_site').joinpath(f"{project_file_name}.zip")
     zip_file = zipfile.ZipFile(file_path,'w', compression = zipfile.ZIP_DEFLATED)
 
-    # Writing to zip file
-    data_path = Path(os.environ['PRA_HOME']).joinpath("data").joinpath("sonarcloud").joinpath(organization)
+    os.chdir('/tmp/pra_site')
 
     for type_ in ["analyses", "issues", "measures"]:
-        if data_path.joinpath(type_).joinpath(f"{project_file_name}.csv").exists():
-            os.chdir(data_path.joinpath(type_))
-            zip_file.write(f"{project_file_name}.csv", f"{project_file_name}_{type_}.csv")
+        print("Download relevant csv files from 130.230.52.209")
+        subprocess.run([
+            "scp", \
+            f"130.230.52.209:/mnt/pra/data/sonarcloud/{organization}/{type_}/{project_file_name}.csv", \
+            f"/tmp/pra_site/{project_file_name}_{type_}.csv" \
+        ])
+        # Writing to zip file
+        zip_file.write(f"{project_file_name}_{type_}.csv")
 
     zip_file.close()
 
