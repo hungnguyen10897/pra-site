@@ -113,10 +113,9 @@ def download_data(organization, project_name):
         # Download relevant csv files from 130.230.52.209
         subprocess.run([
             "scp", \
-            f"130.230.52.209:/mnt/sonar_miner/sonar_data/{type_}/{project_file_name}.csv", \
+            f"130.230.52.209:/mnt/pra/data/sonarcloud/{organization}/{type_}/{project_file_name}.csv", \
             f"/tmp/pra_site/{project_file_name}_{type_}.csv" \
         ])
-        # /mnt/pra/data/sonarcloud/{organization}           //This should be the right location, temporary solution
 
         # Only write if there is corresponding type_
         if Path(f"./{project_file_name}_{type_}.csv").exists():
